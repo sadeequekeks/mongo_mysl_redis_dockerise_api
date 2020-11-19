@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+    mdb:
+        image: mongo
+        ports:
+            - "27017:27017"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: "sadeeque"
+            MONGO_INITDB_ROOT_PASSWORD: "secret"
+            MONGO_INITDB_DATABASE: "keks"
+        networks:
+            - lexclassnet
+        volumes:
+            - /home/sadeeque/Documents/Projects/storge:/data/db
+        depends_on:
+            - mydb
+    rdb:
+        image: redis
+        ports:
+            - "6379"
+        networks:
+            - lexclassnet
+        depends_on:
+            - mydb
+    mydb:
+        image: mysql:5.7
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: "secret"
+        networks:
+            - lexclassnet
+    api:
+        build: .
+        #image: sadeeque/lexdocker:v100
+        restart: always
+        ports:
+            - "3000:7000"
+        networks:
+            - lexclassnet
+        depends_on:
+            - mydb
+            - rdb
+            - mdb
+
+networks:
+    lexclassnet:
+        driver: bridge
